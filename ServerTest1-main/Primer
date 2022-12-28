@@ -1,0 +1,122 @@
+#include <fstream>
+#include <iostream>
+#include <windows.h>
+using namespace std;
+struct Person
+{
+	char name[25];
+	int height;
+	int weight;
+}P;
+int answer;
+long size_prev;
+
+int main()
+{
+	ofstream fileR;
+	ifstream fileA;
+	long size_prev;
+	int answer;
+	while (true)
+	{
+		cout << "Write your lastname, height, weight" << endl;
+		cin >> P.name >> P.height >> P.weight;
+		cout << P.name << P.height << P.weight<<endl;
+		fileR.open("../request.bin", ios::app | ios::binary);
+		fileR.write((char*)&P, sizeof(P));
+		fileR.close();
+		fileA.open("../answer.bin", ios::binary);
+		fileA.seekg(0, ios::end);
+		size_prev = fileA.tellg();
+		while (size_prev >= fileA.tellg())
+		{
+			Sleep(100);
+			fileA.seekg(0, ios::end);
+		}
+		fileA.seekg(size_prev, ios::beg);
+		fileA.read((char*)&answer, sizeof(answer));
+		fileA.close();
+
+		switch (answer)
+		{
+		case 0:
+		{
+			cout << "Less than normal\n";
+			break;
+		}
+		case 1:
+		{
+			cout << "Normal\n";
+			break;
+		}
+		case 2:
+		{
+			cout << "More than normal\n";
+			break;
+		}
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include <fstream>
+#include <iostream>
+#include <windows.h>
+using namespace std;
+struct Person
+{
+	char name[25];
+	int height;
+	int weight;
+}P;
+int answer;
+long size_prev;
+
+int main()
+{
+	ifstream fileR;
+	ofstream fileA;
+	cout << "Server started" << endl;
+	fileR.open("../request.bin", ios::binary);
+	fileR.seekg(0, ios::end);
+	size_prev = fileR.tellg();
+	fileR.close();
+	while (true)
+	{
+		fileR.open("../request.bin", ios::binary);
+		
+		fileR.seekg(0, ios::end);
+		while (size_prev >= fileR.tellg())
+		{
+			Sleep(1000);
+			fileR.seekg(0, ios::end);
+		}
+		
+		fileR.seekg(size_prev, ios::beg);
+		fileR.read((char*)&P, sizeof(P));
+		size_prev = fileR.tellg();
+		cout << "New querry from " << P.name << endl;
+		fileR.close();
+		double coef = P.weight / (0.01 * P.height) / (0.01 * P.height);
+		if (18.5 <= coef && coef < 25)
+			answer = 1;
+		if (18.5 > coef)
+			answer = 0;
+		if (coef >= 25)
+			answer = 2;
+		fileA.open("../answer.bin", ios::binary | ios::app);
+		fileA.write((char*)&answer, sizeof(answer));
+		fileA.close();
+	}
+}
